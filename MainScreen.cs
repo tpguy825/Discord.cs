@@ -1,51 +1,57 @@
-using Discord.WebSocket;
-using System.Reactive.Threading.Tasks;
+using Discord.Rest;
 
 namespace Discord.cs
 {
     public partial class MainScreen : Form
     {
-        public DiscordSocketClient? client;
+        public DiscordRestClient? client;
         private ServerList? serverList;
-        private DiscordNetLog? log;
+        private readonly DiscordNetLog log = new();
 
         public MainScreen()
         {
             InitializeComponent();
-            Task.Run(InitializeDiscordNet).Start();
-            log = new DiscordNetLog();
+            Task.Run(InitializeDiscordNet);
             log.Show(this);
         }
 
         private async Task InitializeDiscordNet()
         {
-            client = new DiscordSocketClient();
+            client = new DiscordRestClient();
             client.Log += Log;
 
-            client.Ready += RefreshServerList;
+            try
+            {
+                var token = File.ReadAllText(".token").Trim();
 
-            //  You can assign your bot token to a string, and pass that in to connect.
-            //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
-            //var token = "token";
+                client.LoggedIn += async () =>
+                {
+                    Text = $"Discord.cs [Connected as {client.CurrentUser.Username}]";
+                    await RefreshServerList();
+                };
 
-            // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
-            // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
-            var token = File.ReadAllText(".token");
-            // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
+                client.LoggedOut += () =>
+                {
+                    Text = "Discord.cs [Disconnected]";
+                    return Task.CompletedTask;
+                };
 
-            await client.LoginAsync(TokenType.Bearer, token);
-            await client.StartAsync();
-
-            // Block this task until the program is closed.
-            await Task.Delay(-1);
+                await client.LoginAsync(TokenType.Bearer, token);
+            }
+            catch (Exception ex)
+            {
+                await Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
+            }
         }
+
+        private async Task 
 
         private async Task RefreshServerList()
         {
             if (client == null) return;
             listView1.Items.Clear();
             serverList = new ServerList(client, this);
-            serverList.RefreshServerList();
+            await serverList.RefreshServerList();
         }
 
         private Task Log(LogMessage msg)
@@ -54,10 +60,23 @@ namespace Discord.cs
             return Task.CompletedTask;
         }
 
-
-        private void label1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-
+            if (client == null) return;
+            var token = File.ReadAllText(".token").Trim();
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await client.LogoutAsync();
+                    await client.LoginAsync(TokenType.Bearer, token);
+                    await RefreshServerList();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            });
         }
     }
 }
