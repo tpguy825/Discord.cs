@@ -1,21 +1,28 @@
 using Discord.WebSocket;
+using System.Reactive.Threading.Tasks;
 
 namespace Discord.cs
 {
-    public partial class Form1 : Form
+    public partial class MainScreen : Form
     {
-        private DiscordSocketClient _client;
+        public DiscordSocketClient? client;
+        private ServerList? serverList;
+        private DiscordNetLog? log;
 
-        public Form1()
+        public MainScreen()
         {
             InitializeComponent();
+            Task.Run(InitializeDiscordNet).Start();
+            log = new DiscordNetLog();
+            log.Show(this);
         }
 
         private async Task InitializeDiscordNet()
         {
-            _client = new DiscordSocketClient();
+            client = new DiscordSocketClient();
+            client.Log += Log;
 
-            _client.Log += Log;
+            client.Ready += RefreshServerList;
 
             //  You can assign your bot token to a string, and pass that in to connect.
             //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
@@ -26,16 +33,24 @@ namespace Discord.cs
             var token = File.ReadAllText(".token");
             // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
 
-            await _client.LoginAsync(TokenType.Bot, token);
-            await _client.StartAsync();
+            await client.LoginAsync(TokenType.Bearer, token);
+            await client.StartAsync();
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
         }
 
-        private static Task Log(LogMessage msg)
+        private async Task RefreshServerList()
         {
-            Console.WriteLine(msg.ToString());
+            if (client == null) return;
+            listView1.Items.Clear();
+            serverList = new ServerList(client, this);
+            serverList.RefreshServerList();
+        }
+
+        private Task Log(LogMessage msg)
+        {
+            log.richTextBox1.AppendText(msg.ToString() + "\n");
             return Task.CompletedTask;
         }
 
