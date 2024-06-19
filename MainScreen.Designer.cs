@@ -32,10 +32,8 @@
         {
             splitContainer1 = new SplitContainer();
             pictureBox1 = new PictureBox();
-            button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
-            splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -51,10 +49,6 @@
             // splitContainer1.Panel1
             // 
             splitContainer1.Panel1.Controls.Add(pictureBox1);
-            // 
-            // splitContainer1.Panel2
-            // 
-            splitContainer1.Panel2.Controls.Add(button1);
             splitContainer1.Size = new Size(857, 516);
             splitContainer1.SplitterDistance = 60;
             splitContainer1.TabIndex = 0;
@@ -62,20 +56,10 @@
             // pictureBox1
             // 
             pictureBox1.Location = new Point(0, 0);
-            pictureBox1.Name = "pictureBox-1";
+            pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(57, 50);
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
-            // 
-            // button1
-            // 
-            button1.Location = new Point(359, 204);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 0;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
             // 
             // MainScreen
             // 
@@ -86,7 +70,6 @@
             Name = "MainScreen";
             Text = "Discord.cs";
             splitContainer1.Panel1.ResumeLayout(false);
-            splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
@@ -97,6 +80,5 @@
 
         public SplitContainer splitContainer1;
         public PictureBox pictureBox1;
-        private Button button1;
     }
 }

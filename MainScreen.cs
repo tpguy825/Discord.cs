@@ -102,7 +102,7 @@ namespace Discord.cs
                 if (client == null) return;
                 Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Refreshing server list"));
                 serverList = new ServerList(client);
-                Image[] images = serverList.RefreshServerList();
+                ServerItem[] images = serverList.RefreshServerList();
                 Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Rendering server list"));
                 Invoke(new Action(() => RenderServerList(images)));
                 Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Server list refreshed"));
@@ -114,30 +114,44 @@ namespace Discord.cs
         }
 
         // Must be called from UI thread!!!
-        private void RenderServerList(Image[] images)
+        private void RenderServerList(ServerItem[] images)
         {
             int i = 0;
             splitContainer1.Panel1.Controls.Clear();
-            foreach (var image in images)
+            foreach (var server in images)
             {
-                splitContainer1.Panel1.Controls.Add(new PictureBox()
+                var box = new PictureBox()
                 {
-                    Image = image,
+                    Image = server.Image,
                     Name = $"pictureBox-{i}",
                     Size = new Size(50, 50),
-                    Location = new Point(0, i * 50)
-                });
+                    Location = new Point(0, i * 50),
+                    Cursor = Cursors.Hand
+                };
+                box.Click += (sender, e) =>
+                {
+                    SetActiveServer(server.Guild);
+                };
+                splitContainer1.Panel1.Controls.Add(box);
                 i++;
             }
         }
+
+        private void SetActiveServer(PartialGuild guild)
+        {
+            Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Setting active server to {guild.Name}"));
+        }
+
         public static void Log(LogMessage msg)
         {
             log.richTextBox1.AppendText(msg.ToString() + "\n");
+            log.richTextBox1.ScrollToCaret();
         }
 
         public static void Log(string msg)
         {
             log.richTextBox1.AppendText(msg + "\n");
+            log.richTextBox1.ScrollToCaret();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -165,4 +179,6 @@ namespace Discord.cs
         Info,
         Debug
     }
+
+    public record ServerItem(PartialGuild Guild, Image Image);
 }

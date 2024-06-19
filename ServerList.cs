@@ -10,10 +10,10 @@ namespace Discord.cs
             Timeout = TimeSpan.FromSeconds(5)
         };
 
-        public Image[] RefreshServerList()
+        public ServerItem[] RefreshServerList()
         {
-            var servers = client.GetGuilds();
-            Image[] images = new Image[servers.Count];
+            var servers = client.GetGuilds().OrderBy(g => g.Name);
+            var images = new ServerItem[servers.Count()];
             int i = 0;
             foreach (var server in servers)
             {
@@ -32,7 +32,7 @@ namespace Discord.cs
                 }
 
                 MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Rendering server icon for {server.Name}"));
-                images[i] = ResizeImage(image, 50, 50);
+                images[i] = new ServerItem(server, ResizeImage(image, 50, 50));
 
                 MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Rendered server {server.Name}"));
 

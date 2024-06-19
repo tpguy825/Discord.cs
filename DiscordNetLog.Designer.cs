@@ -36,6 +36,7 @@
             richTextBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             richTextBox1.Location = new Point(3, 3);
             richTextBox1.Name = "richTextBox1";
+            richTextBox1.ScrollBars = RichTextBoxScrollBars.ForcedHorizontal;
             richTextBox1.Size = new Size(694, 494);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
@@ -45,10 +46,10 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(700, 500);
-            WindowState = FormWindowState.Minimized; // Minimize the window on startup
             Controls.Add(richTextBox1);
             Name = "DiscordNetLog";
             Text = "Discord.cs - Logs";
+            WindowState = FormWindowState.Minimized;
             ResumeLayout(false);
         }
 
