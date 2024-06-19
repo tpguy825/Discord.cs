@@ -1,82 +1,148 @@
-using Discord.Rest;
+using Discord.Gateway;
 
 namespace Discord.cs
 {
     public partial class MainScreen : Form
     {
-        public DiscordRestClient? client;
+        public DiscordSocketClient? client;
         private ServerList? serverList;
-        private readonly DiscordNetLog log = new();
+        public static readonly DiscordNetLog log = new();
 
         public MainScreen()
         {
             InitializeComponent();
-            Task.Run(InitializeDiscordNet);
             log.Show(this);
-        }
-
-        private async Task InitializeDiscordNet()
-        {
-            client = new DiscordRestClient();
-            client.Log += Log;
+            log.SendToBack();
+            this.BringToFront();
 
             try
             {
-                var token = File.ReadAllText(".token").Trim();
-
-                client.LoggedIn += async () =>
-                {
-                    Text = $"Discord.cs [Connected as {client.CurrentUser.Username}]";
-                    await RefreshServerList();
-                };
-
-                client.LoggedOut += () =>
-                {
-                    Text = "Discord.cs [Disconnected]";
-                    return Task.CompletedTask;
-                };
-
-                await client.LoginAsync(TokenType.Bearer, token);
+                InitializeDiscordNet();
             }
             catch (Exception ex)
             {
-                await Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void InitializeDiscordNet()
+        {
+            client = new DiscordSocketClient();
+
+            try
+            {
+                string token = "";
+                if (!File.Exists(".token"))
+                {
+                    CodeForm.ShowPopup(this, TokenPopupCallback);
+                }
+                else
+                {
+                    token = File.ReadAllText(".token");
+                    if (token.Trim().Length == 0 || token == null) throw new Exception("Failed to read token from token file");
+                    Task.Run(() => LoginToDiscordNet(token));
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
             }
         }
 
-        private async Task 
+        private void TokenPopupCallback(string token)
+        {
+            try
+            {
+                Task.Run(() => LoginToDiscordNet(token));
+                File.WriteAllText(".token", token);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async Task LoginToDiscordNet(string token)
+        {
+            try
+            {
+                client = new DiscordSocketClient();
+
+                client.OnLoggedIn += async (_, _) =>
+                {
+                    Text = $"Discord.cs [Connected as {client.User.Username}]";
+                    await RefreshServerList();
+                };
+
+                client.OnLoggedOut += (_, _) =>
+                {
+                    Text = "Discord.cs [Disconnected]";
+                };
+                await client.LoginAsync(token);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Log(ex.Message);
+                }
+                catch
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
 
         private async Task RefreshServerList()
         {
             if (client == null) return;
-            listView1.Items.Clear();
-            serverList = new ServerList(client, this);
-            await serverList.RefreshServerList();
+            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Refreshing server list"));
+            serverList = new ServerList(client);
+            PictureBox[] images = await serverList.RefreshServerList();
+            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Rendering server list"));
+            SuspendLayout();
+            foreach (var image in images)
+            {
+                Controls.Add(image);
+            }
+            ResumeLayout(true);
+            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Server list refreshed"));
         }
 
-        private Task Log(LogMessage msg)
+        public static void Log(LogMessage msg)
         {
             log.richTextBox1.AppendText(msg.ToString() + "\n");
-            return Task.CompletedTask;
+        }
+
+        public static void Log(string msg)
+        {
+            log.richTextBox1.AppendText(msg + "\n");
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (client == null) return;
-            var token = File.ReadAllText(".token").Trim();
-            Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await client.LogoutAsync();
-                    await client.LoginAsync(TokenType.Bearer, token);
-                    await RefreshServerList();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            });
+                InitializeDiscordNet();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
+    }
+
+    public record LogMessage(LogSeverity Severity, string Source, string Message)
+    {
+        public override string ToString() => $"[{Severity}] {Source}: {Message}";
+    }
+
+    public enum LogSeverity
+    {
+        Error,
+        Warning,
+        Info,
+        Debug
     }
 }

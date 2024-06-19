@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="3.15.1" />
+    <PackageReference Include="Discord.Anarchy" Version="0.8.3.2" />
   </ItemGroup>
 
 </Project>

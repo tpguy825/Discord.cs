@@ -32,7 +32,6 @@
         {
             splitContainer1 = new SplitContainer();
             pictureBox1 = new PictureBox();
-            listView1 = new ListView();
             button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -52,7 +51,6 @@
             // splitContainer1.Panel1
             // 
             splitContainer1.Panel1.Controls.Add(pictureBox1);
-            splitContainer1.Panel1.Controls.Add(listView1);
             // 
             // splitContainer1.Panel2
             // 
@@ -64,19 +62,10 @@
             // pictureBox1
             // 
             pictureBox1.Location = new Point(0, 0);
-            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Name = "pictureBox-1";
             pictureBox1.Size = new Size(57, 50);
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
-            // 
-            // listView1
-            // 
-            listView1.BackColor = SystemColors.Menu;
-            listView1.Location = new Point(0, 0);
-            listView1.Name = "listView1";
-            listView1.Size = new Size(57, 516);
-            listView1.TabIndex = 0;
-            listView1.UseCompatibleStateImageBehavior = false;
             // 
             // button1
             // 
@@ -106,9 +95,8 @@
 
         #endregion
 
-        private SplitContainer splitContainer1;
-        private PictureBox pictureBox1;
-        public ListView listView1;
+        public SplitContainer splitContainer1;
+        public PictureBox pictureBox1;
         private Button button1;
     }
 }

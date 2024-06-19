@@ -40,14 +40,15 @@
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
             // 
-            // Form1
+            // DiscordNetLog
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(700, 500);
+            WindowState = FormWindowState.Minimized; // Minimize the window on startup
             Controls.Add(richTextBox1);
-            Name = "Form1";
-            Text = "Form1";
+            Name = "DiscordNetLog";
+            Text = "Discord.cs - Logs";
             ResumeLayout(false);
         }
 
