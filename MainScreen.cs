@@ -13,7 +13,7 @@ namespace Discord.cs
             InitializeComponent();
             log.Show(this);
             log.SendToBack();
-            this.BringToFront();
+            BringToFront();
 
             try
             {
@@ -54,6 +54,7 @@ namespace Discord.cs
         {
             try
             {
+
                 Task.Run(() => LoginToDiscordNet(token));
                 File.WriteAllText(".token", token);
             }
@@ -69,10 +70,10 @@ namespace Discord.cs
             {
                 client = new DiscordSocketClient();
 
-                client.OnLoggedIn += async (_, _) =>
+                client.OnLoggedIn += (_, _) =>
                 {
                     Text = $"Discord.cs [Connected as {client.User.Username}]";
-                    await RefreshServerList();
+                    RefreshServerList();
                 };
 
                 client.OnLoggedOut += (_, _) =>
@@ -94,22 +95,41 @@ namespace Discord.cs
             }
         }
 
-        private async Task RefreshServerList()
+        private void RefreshServerList()
         {
-            if (client == null) return;
-            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Refreshing server list"));
-            serverList = new ServerList(client);
-            PictureBox[] images = await serverList.RefreshServerList();
-            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Rendering server list"));
-            SuspendLayout();
-            foreach (var image in images)
+            try
             {
-                Controls.Add(image);
+                if (client == null) return;
+                Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Refreshing server list"));
+                serverList = new ServerList(client);
+                Image[] images = serverList.RefreshServerList();
+                Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Rendering server list"));
+                Invoke(new Action(() => RenderServerList(images)));
+                Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Server list refreshed"));
             }
-            ResumeLayout(true);
-            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Server list refreshed"));
+            catch (Exception ex)
+            {
+                Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
+            }
         }
 
+        // Must be called from UI thread!!!
+        private void RenderServerList(Image[] images)
+        {
+            int i = 0;
+            splitContainer1.Panel1.Controls.Clear();
+            foreach (var image in images)
+            {
+                splitContainer1.Panel1.Controls.Add(new PictureBox()
+                {
+                    Image = image,
+                    Name = $"pictureBox-{i}",
+                    Size = new Size(50, 50),
+                    Location = new Point(0, i * 50)
+                });
+                i++;
+            }
+        }
         public static void Log(LogMessage msg)
         {
             log.richTextBox1.AppendText(msg.ToString() + "\n");
