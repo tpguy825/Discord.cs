@@ -12,4 +12,10 @@
     <PackageReference Include="Discord.Anarchy" Version="0.8.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Resources\blank_server_icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

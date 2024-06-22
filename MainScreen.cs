@@ -7,6 +7,8 @@ namespace Discord.cs
         public DiscordSocketClient? client;
         private ServerList? serverList;
         public static readonly DiscordNetLog log = new();
+        private MessageDisplay messageDisplay;
+        private ChannelManager channelManager;
 
         public MainScreen()
         {
@@ -14,6 +16,7 @@ namespace Discord.cs
             log.Show(this);
             log.SendToBack();
             BringToFront();
+
 
             try
             {
@@ -23,6 +26,9 @@ namespace Discord.cs
             {
                 MessageBox.Show(ex.Message);
             }
+
+            messageDisplay = new MessageDisplay(listView1, client!);
+            channelManager = new ChannelManager(messageDisplay, treeView1);
 
         }
 
@@ -95,14 +101,14 @@ namespace Discord.cs
             }
         }
 
-        private void RefreshServerList()
+        private async Task RefreshServerList()
         {
             try
             {
                 if (client == null) return;
                 Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Refreshing server list"));
                 serverList = new ServerList(client);
-                ServerItem[] images = serverList.RefreshServerList();
+                ServerItem[] images = await serverList.RefreshServerList();
                 Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Rendering server list"));
                 Invoke(new Action(() => RenderServerList(images)));
                 Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Server list refreshed"));
@@ -111,6 +117,12 @@ namespace Discord.cs
             {
                 Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
             }
+        }
+
+        // Try to avoid if possible, can't guarantee it works
+        public static void RunOnUIThread(Action action)
+        {
+            ((MainScreen)log.ParentForm!).Invoke(action);
         }
 
         // Must be called from UI thread!!!
@@ -137,9 +149,10 @@ namespace Discord.cs
             }
         }
 
-        private void SetActiveServer(PartialGuild guild)
+        private void SetActiveServer(DiscordGuild guild)
         {
             Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Setting active server to {guild.Name}"));
+            channelManager.SetServer(guild);
         }
 
         public static void Log(LogMessage msg)
@@ -180,5 +193,5 @@ namespace Discord.cs
         Debug
     }
 
-    public record ServerItem(PartialGuild Guild, Image Image);
+    public record ServerItem(DiscordGuild Guild, Image Image);
 }
