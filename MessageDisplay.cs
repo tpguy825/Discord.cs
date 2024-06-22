@@ -1,55 +1,40 @@
-﻿using Discord.Gateway;
-
-namespace Discord.cs
+﻿namespace Discord.cs
 {
-    internal class MessageDisplay(ListView listView, DiscordSocketClient client, MainScreen parent)
+    internal class MessageDisplay(ListView listView, DiscordClient client, MainScreen parent)
     {
         private readonly List<DiscordMessage> messages = [];
+        private DiscordChannel? channel;
+        private MessagesPaginator paginator = new(client);
 
-        public void AddMessage(DiscordMessage message)
+        public void SetChannel(TextChannel? channel)
         {
-            messages.Add(message);
-            (bool success, Stream stream) = Utils.DownloadCDNImage(message.Author.User.Avatar);
-            Image image = success ? Image.FromStream(stream) : Image.FromFile("Resources/blank_user_icon.png");
-
-            listView.SmallImageList ??= new ImageList();
-            listView.SmallImageList.Images.Add($"message-{message.Id}", image);
-            ListViewItem item = new()
-            {
-                Name = $"message-{message.Id}",
-                Text = message.ToString(),
-                Tag = message,
-                ImageKey = $"message-{message.Id}"
-            };
-            listView.Items.Add(item);
-        }
-
-        public void RemoveMessage(DiscordMessage message)
-        {
-            messages.Remove(message);
-            listView.Items.Remove(new ListViewItem(message.ToString()));
-        }
-
-        public void SetChannel(GuildChannel channel)
-        {
+            if (channel == null) return;
+            this.channel = channel;
             ClearMessages();
-            foreach (var message in client.GetChannelMessages(channel.Id))
-            {
-                AddMessage(message);
-            }
-            parent.Invoke(new Action(RenderMessages));
+            parent.label1.Text = "#" + channel.Name;
+            paginator.SetChannel(channel);
+            parent.Invoke(new Action(async () => await RenderMessages()));
         }
 
         public void ClearMessages()
         {
             messages.Clear();
             listView.Items.Clear();
+            paginator.ClearMessages();
+            listView.SmallImageList?.Images.Clear();
         }
 
-        public void RenderMessages()
+        public async Task RenderMessages()
         {
+            if (channel == null || paginator == null) return;
             listView.SmallImageList ??= new ImageList();
-            foreach (var message in messages)
+            if (channel.Type == ChannelType.Voice)
+            {
+                listView.Items.Add(new ListViewItem("Voice channels are not supported at the moment"));
+                return;
+            }
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Rendering messages for {channel.Name}"));
+            foreach (var message in await paginator.LoadMoreMessages())
             {
                 (bool success, Stream stream) = Utils.DownloadCDNImage(message.Author.User.Avatar);
                 Image image = success ? Image.FromStream(stream) : Image.FromFile("Resources/blank_user_icon.png");
@@ -58,7 +43,7 @@ namespace Discord.cs
                 ListViewItem item = new()
                 {
                     Name = $"message-{message.Id}",
-                    Text = message.ToString(),
+                    Text = message.Content,
                     Tag = message,
                     ImageKey = $"message-{message.Id}"
                 };

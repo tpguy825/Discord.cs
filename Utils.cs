@@ -2,6 +2,8 @@
 {
     internal class Utils
     {
+        public static List<ImageCache> imageCache = new();
+
         public static (bool, Stream) DownloadCDNImage(DiscordCDNImage input, HttpClient? httpClient = null)
         {
             httpClient ??= new()
@@ -12,6 +14,11 @@
             if (input == null) return (false, Stream.Null);
             try
             {
+                if (imageCache.Any(x => x.Url == input.Url))
+                {
+                    return (true, imageCache.First(x => x.Url == input.Url).Image);
+                }
+
                 HttpRequestMessage request = new()
                 {
                     RequestUri = new Uri(input.Url + ".png"),
@@ -23,6 +30,8 @@
                 };
                 HttpResponseMessage response = httpClient.Send(request);
                 Stream stream = response.EnsureSuccessStatusCode().Content.ReadAsStream();
+
+                imageCache.Add(new ImageCache { Url = input.Url, Image = stream });
 
                 return (true, stream);
             }
@@ -43,6 +52,11 @@
             if (input == null) return (false, Stream.Null);
             try
             {
+                if (imageCache.Any(x => x.Url == input.Url))
+                {
+                    return (true, imageCache.First(x => x.Url == input.Url).Image);
+                }
+
                 HttpRequestMessage request = new()
                 {
                     RequestUri = new Uri(input.Url + ".png"),
@@ -54,6 +68,8 @@
                 };
                 HttpResponseMessage response = await httpClient.SendAsync(request);
                 Stream stream = await response.EnsureSuccessStatusCode().Content.ReadAsStreamAsync();
+
+                imageCache.Add(new ImageCache { Url = input.Url, Image = stream });
 
                 return (true, stream);
             }
@@ -73,5 +89,46 @@
             }
             return output;
         }
+
+        public static TextChannel? IsTextChannel(GuildChannel? channel)
+        {
+            if (channel == null) return null;
+            return channel.Type == ChannelType.Text ? (TextChannel)channel : null;
+        }
+
+        public static PrivateChannel? IsPrivateChannel(DiscordChannel? channel)
+        {
+            if (channel == null) return null;
+            return channel.Type == ChannelType.DM ? (PrivateChannel)channel : null;
+        }
+
+        public static DiscordGroup? IsGroupChannel(DiscordChannel? channel)
+        {
+            if (channel == null) return null;
+            return channel.Type == ChannelType.Group ? (DiscordGroup)channel : null;
+        }
+
+        public static VoiceChannel? IsVoiceChannel(GuildChannel? channel)
+        {
+            if (channel == null) return null;
+            return channel.Type == ChannelType.Voice ? (VoiceChannel)channel : null;
+        }
+
+        public static GuildChannel? IsCategoryChannel(GuildChannel? channel)
+        {
+            if (channel == null) return null;
+            return channel.Type == ChannelType.Category ? channel : null;
+        }
+
+        public static bool IsMessageChannel(DiscordChannel? channel)
+        {
+            return channel != null && (channel.IsText);
+        }
+    }
+
+    public class ImageCache
+    {
+        public required string Url { get; set; }
+        public required Stream Image { get; set; }
     }
 }

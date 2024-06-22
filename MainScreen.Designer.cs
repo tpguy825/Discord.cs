@@ -32,14 +32,20 @@
         {
             splitContainer1 = new SplitContainer();
             pictureBox1 = new PictureBox();
-            listView1 = new ListView();
+            splitContainer2 = new SplitContainer();
             treeView1 = new TreeView();
             label1 = new Label();
+            listView1 = new ListView();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
+            splitContainer2.Panel1.SuspendLayout();
+            splitContainer2.Panel2.SuspendLayout();
+            splitContainer2.SuspendLayout();
             SuspendLayout();
             // 
             // splitContainer1
@@ -56,9 +62,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            splitContainer1.Panel2.Controls.Add(label1);
-            splitContainer1.Panel2.Controls.Add(listView1);
-            splitContainer1.Panel2.Controls.Add(treeView1);
+            splitContainer1.Panel2.Controls.Add(splitContainer2);
             splitContainer1.Size = new Size(857, 516);
             splitContainer1.SplitterDistance = 60;
             splitContainer1.TabIndex = 0;
@@ -70,31 +74,63 @@
             pictureBox1.Size = new Size(57, 50);
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
-            // listView1
+            // splitContainer2
             // 
-            listView1.Location = new Point(140, 40);
-            listView1.Name = "listView1";
-            listView1.Size = new Size(121, 97);
-            listView1.TabIndex = 1;
-            listView1.UseCompatibleStateImageBehavior = false;
-            listView1.View = View.SmallIcon;
+            splitContainer2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainer2.Location = new Point(-1, 0);
+            splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            splitContainer2.Panel1.Controls.Add(label2);
+            splitContainer2.Panel1.Controls.Add(treeView1);
+            // 
+            // splitContainer2.Panel2
+            // 
+            splitContainer2.Panel2.Controls.Add(label1);
+            splitContainer2.Panel2.Controls.Add(listView1);
+            splitContainer2.Size = new Size(794, 516);
+            splitContainer2.SplitterDistance = 200;
+            splitContainer2.TabIndex = 3;
             // 
             // treeView1
             // 
-            treeView1.Location = new Point(0, 0);
+            treeView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            treeView1.Location = new Point(1, 40);
             treeView1.Name = "treeView1";
-            treeView1.Size = new Size(140, 516);
+            treeView1.Size = new Size(199, 476);
             treeView1.TabIndex = 0;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(146, 13);
+            label1.Location = new Point(5, 13);
             label1.Name = "label1";
             label1.Size = new Size(38, 15);
             label1.TabIndex = 2;
             label1.Text = "label1";
+            // 
+            // listView1
+            // 
+            listView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            listView1.ImeMode = ImeMode.NoControl;
+            listView1.Location = new Point(0, 40);
+            listView1.Name = "listView1";
+            listView1.Size = new Size(590, 476);
+            listView1.TabIndex = 1;
+            listView1.UseCompatibleStateImageBehavior = false;
+            listView1.View = View.List;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(5, 13);
+            label2.Name = "label2";
+            label2.Size = new Size(38, 15);
+            label2.TabIndex = 1;
+            label2.Text = "label2";
             // 
             // MainScreen
             // 
@@ -106,10 +142,15 @@
             Text = "Discord.cs";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
-            splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            splitContainer2.Panel1.ResumeLayout(false);
+            splitContainer2.Panel1.PerformLayout();
+            splitContainer2.Panel2.ResumeLayout(false);
+            splitContainer2.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
+            splitContainer2.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -119,6 +160,8 @@
         public PictureBox pictureBox1;
         private TreeView treeView1;
         private ListView listView1;
-        private Label label1;
+        public Label label1;
+        private SplitContainer splitContainer2;
+        private Label label2;
     }
 }

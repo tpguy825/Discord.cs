@@ -2,7 +2,7 @@
 
 namespace Discord.cs
 {
-    internal class ServerList(DiscordSocketClient client)
+    internal class ServerList(DiscordClient client)
     {
         public async Task<ServerItem[]> RefreshServerList()
         {

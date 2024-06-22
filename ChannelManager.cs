@@ -8,44 +8,75 @@
         public void SetServer(DiscordGuild server)
         {
             this.server = server;
-            parent.Invoke(new Action(RenderChannels));
+            parent.Invoke(new Action(async () => await RenderChannels()));
         }
 
-        public void RenderChannels()
+        public async Task RenderChannels()
         {
             if (server == null) return;
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Rendering channels"));
             messageDisplay.ClearMessages();
-            channels = server.GetChannels();
-
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Cleared messages"));
+            channels = await server.GetChannelsAsync();
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Retreived channels"));
             channelTree.Nodes.Clear();
+            channelTree.ShowLines = true;
+            channelTree.ShowPlusMinus = true;
             foreach (var channel in channels)
             {
+                // organise into categories
+                bool isCategory = channel.Type == ChannelType.Category;
                 TreeNode node = new()
                 {
-                    Name = $"channel-{channel.Id}",
-                    Text = "#" + channel.Name,
-                    Tag = channel,
+                    Text = (!isCategory ? "#" : "") + channel.Name,
+                    ForeColor = channel.Type == ChannelType.Voice ? Color.Blue : Color.Black,
+                    Name = channel.Id.ToString(),
+                    Tag = channel
                 };
-                channelTree.Nodes.Add(node);
+                if (isCategory)
+                {
+                    channelTree.Nodes.Add(node);
+                }
+                else
+                {
+                    if (channel.ParentId != null)
+                    {
+                        TreeNode? parent = channelTree.Nodes.Find(channel.ParentId.ToString(), true).FirstOrDefault();
+                        if (parent != null)
+                        {
+                            parent.Nodes.Add(node);
+                        }
+                    }
+                    else
+                    {
+                        channelTree.Nodes.Add(node);
+                    }
+                }
             }
 
             channelTree.ExpandAll();
-            channelTree.AfterSelect += (sender, e) =>
+            channelTree.NodeMouseClick += (sender, e) =>
             {
-                if (e.Node != null && e.Node.Tag is GuildChannel channel)
+                if (channelTree.SelectedNode != null && channelTree.SelectedNode.Tag is GuildChannel channel)
                 {
-                    messageDisplay.SetChannel(channel);
+                    MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
+                    messageDisplay.SetChannel(Utils.IsTextChannel(channel));
                 }
             };
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channels rendered"));
         }
 
 
         public void SetChannel(GuildChannel channel)
         {
-            messageDisplay.ClearMessages();
-            messageDisplay.SetChannel(channel);
+            if (Utils.IsMessageChannel(channel))
+            {
+                // It's a message channel, ignore types
+                // c# doesn't support union types :(
+                messageDisplay.SetChannel((TextChannel)channel);
+            }
 
-            parent.Invoke(new Action(RenderChannels));
+            parent.Invoke(new Action(async () => await RenderChannels()));
         }
     }
 }

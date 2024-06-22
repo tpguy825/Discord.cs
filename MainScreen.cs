@@ -78,13 +78,14 @@ namespace Discord.cs
 
                 client.OnLoggedIn += async (_, _) =>
                 {
-                    Text = $"Discord.cs [Connected as {client.User.Username}]";
+                    Invoke(() => Text = $"Discord.cs [Connected as {client.User.Username}]");
                     await RefreshServerList();
                 };
 
-                client.OnLoggedOut += (_, _) =>
+                client.OnLoggedOut += (client, eventargs) =>
                 {
-                    Text = "Discord.cs [Disconnected]";
+                    Invoke(() => Text = "Discord.cs [Disconnected]");
+                    Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Logged out, reason: " + eventargs.Reason));
                 };
                 await client.LoginAsync(token);
             }
@@ -119,14 +120,6 @@ namespace Discord.cs
             }
         }
 
-        // Try to avoid if possible, can't guarantee it works
-        // 22/06/2024 13:03 - It, in fact, doesn't work, it just provides a null reference exception
-        public static void RunOnUIThread(Action action)
-        {
-            //((MainScreen)log.ParentForm!).Invoke(action);
-            throw new Exception("dont use this!!!!");
-        }
-
         // Must be called from UI thread!!!
         private void RenderServerList(ServerItem[] images)
         {
@@ -139,7 +132,7 @@ namespace Discord.cs
                     Image = server.Image,
                     Name = $"pictureBox-{i}",
                     Size = new Size(50, 50),
-                    Location = new Point(0, i * 50),
+                    Location = new Point(5, i * 55),
                     Cursor = Cursors.Hand
                 };
                 box.Click += (sender, e) =>
@@ -154,16 +147,21 @@ namespace Discord.cs
         private void SetActiveServer(DiscordGuild guild)
         {
             Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Setting active server to {guild.Name}"));
+            label2.Text = guild.Name;
             channelManager.SetServer(guild);
         }
 
         public static void Log(LogMessage msg)
         {
-            log.richTextBox1.AppendText(msg.ToString() + "\n");
-            log.richTextBox1.ScrollToCaret();
+            log.Invoke(new Action(() => LogInternal(msg.ToString())));
         }
 
         public static void Log(string msg)
+        {
+            log.Invoke(new Action(() => LogInternal(msg)));
+        }
+
+        private static void LogInternal(string msg)
         {
             log.richTextBox1.AppendText(msg + "\n");
             log.richTextBox1.ScrollToCaret();
@@ -179,6 +177,11 @@ namespace Discord.cs
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
