@@ -120,6 +120,7 @@ namespace Discord.cs
         }
 
         // Try to avoid if possible, can't guarantee it works
+        // 22/06/2024 13:03 - It, in fact, doesn't work, it just provides a null reference exception
         public static void RunOnUIThread(Action action)
         {
             ((MainScreen)log.ParentForm!).Invoke(action);
