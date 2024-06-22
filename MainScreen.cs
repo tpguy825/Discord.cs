@@ -7,8 +7,8 @@ namespace Discord.cs
         public DiscordSocketClient? client;
         private ServerList? serverList;
         public static readonly DiscordNetLog log = new();
-        private MessageDisplay messageDisplay;
-        private ChannelManager channelManager;
+        private readonly MessageDisplay messageDisplay;
+        private readonly ChannelManager channelManager;
 
         public MainScreen()
         {
@@ -27,8 +27,8 @@ namespace Discord.cs
                 MessageBox.Show(ex.Message);
             }
 
-            messageDisplay = new MessageDisplay(listView1, client!);
-            channelManager = new ChannelManager(messageDisplay, treeView1);
+            messageDisplay = new MessageDisplay(listView1, client!, this);
+            channelManager = new ChannelManager(messageDisplay, treeView1, this);
 
         }
 
@@ -76,10 +76,10 @@ namespace Discord.cs
             {
                 client = new DiscordSocketClient();
 
-                client.OnLoggedIn += (_, _) =>
+                client.OnLoggedIn += async (_, _) =>
                 {
                     Text = $"Discord.cs [Connected as {client.User.Username}]";
-                    RefreshServerList();
+                    await RefreshServerList();
                 };
 
                 client.OnLoggedOut += (_, _) =>
@@ -123,7 +123,8 @@ namespace Discord.cs
         // 22/06/2024 13:03 - It, in fact, doesn't work, it just provides a null reference exception
         public static void RunOnUIThread(Action action)
         {
-            ((MainScreen)log.ParentForm!).Invoke(action);
+            //((MainScreen)log.ParentForm!).Invoke(action);
+            throw new Exception("dont use this!!!!");
         }
 
         // Must be called from UI thread!!!

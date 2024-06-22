@@ -4,9 +4,9 @@ namespace Discord.cs
 {
     internal class ServerList(DiscordSocketClient client)
     {
-        public Task<ServerItem[]> RefreshServerList()
+        public async Task<ServerItem[]> RefreshServerList()
         {
-            var servers = client.GetGuilds().OrderBy(g => g.Name);
+            var servers = (await client.GetGuildsAsync()).OrderBy(g => g.Name);
             var images = new Task<ServerItem>[servers.Count()];
             int i = 0;
             foreach (var server in servers)
@@ -18,7 +18,7 @@ namespace Discord.cs
                 i++;
             }
 
-            return Task.WhenAll(images);
+            return await Task.WhenAll(images);
         }
 
         private static async Task<ServerItem> GetServerItem(DiscordGuild server)

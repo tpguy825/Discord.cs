@@ -2,7 +2,7 @@
 
 namespace Discord.cs
 {
-    internal class MessageDisplay(ListView listView, DiscordSocketClient client)
+    internal class MessageDisplay(ListView listView, DiscordSocketClient client, MainScreen parent)
     {
         private readonly List<DiscordMessage> messages = [];
 
@@ -37,7 +37,7 @@ namespace Discord.cs
             {
                 AddMessage(message);
             }
-            MainScreen.RunOnUIThread(new Action(RenderMessages));
+            parent.Invoke(new Action(RenderMessages));
         }
 
         public void ClearMessages()

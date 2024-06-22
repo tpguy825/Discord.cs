@@ -1,6 +1,6 @@
 ﻿namespace Discord.cs
 {
-    internal class ChannelManager(MessageDisplay messageDisplay, TreeView channelTree)
+    internal class ChannelManager(MessageDisplay messageDisplay, TreeView channelTree, MainScreen parent)
     {
         private DiscordGuild? server;
         private IReadOnlyList<GuildChannel>? channels;
@@ -8,7 +8,7 @@
         public void SetServer(DiscordGuild server)
         {
             this.server = server;
-            MainScreen.RunOnUIThread(new Action(RenderChannels));
+            parent.Invoke(new Action(RenderChannels));
         }
 
         public void RenderChannels()
@@ -32,7 +32,7 @@
             channelTree.ExpandAll();
             channelTree.AfterSelect += (sender, e) =>
             {
-                if (e.Node.Tag is GuildChannel channel)
+                if (e.Node != null && e.Node.Tag is GuildChannel channel)
                 {
                     messageDisplay.SetChannel(channel);
                 }
@@ -45,7 +45,7 @@
             messageDisplay.ClearMessages();
             messageDisplay.SetChannel(channel);
 
-            MainScreen.RunOnUIThread(new Action(RenderChannels));
+            parent.Invoke(new Action(RenderChannels));
         }
     }
 }
