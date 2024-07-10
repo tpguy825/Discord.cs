@@ -41,11 +41,9 @@
                 {
                     if (channel.ParentId != null)
                     {
-                        TreeNode? parent = channelTree.Nodes.Find(channel.ParentId.ToString(), true).FirstOrDefault();
-                        if (parent != null)
-                        {
-                            parent.Nodes.Add(node);
-                        }
+                        ulong parentId = (ulong)channel.ParentId;
+                        TreeNode? parent = channelTree.Nodes.Find(parentId.ToString(), true).FirstOrDefault();
+                        parent?.Nodes.Add(node);
                     }
                     else
                     {
@@ -57,10 +55,10 @@
             channelTree.ExpandAll();
             channelTree.NodeMouseClick += (sender, e) =>
             {
-                if (channelTree.SelectedNode != null && channelTree.SelectedNode.Tag is GuildChannel channel)
+                if (e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
                 {
                     MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
-                    messageDisplay.SetChannel(Utils.IsTextChannel(channel));
+                    messageDisplay.SetChannel((TextChannel)channel);
                 }
             };
             MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channels rendered"));

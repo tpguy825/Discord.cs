@@ -13,7 +13,7 @@ namespace Discord.cs
         public MainScreen()
         {
             InitializeComponent();
-            log.Show(this);
+            log.Show();
             log.SendToBack();
             BringToFront();
 
@@ -27,7 +27,7 @@ namespace Discord.cs
                 MessageBox.Show(ex.Message);
             }
 
-            messageDisplay = new MessageDisplay(listView1, client!, this);
+            messageDisplay = new MessageDisplay(listView1, this);
             channelManager = new ChannelManager(messageDisplay, treeView1, this);
 
         }
@@ -87,6 +87,9 @@ namespace Discord.cs
                     Invoke(() => Text = "Discord.cs [Disconnected]");
                     Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Logged out, reason: " + eventargs.Reason));
                 };
+
+                client.OnMessageReceived += onMessage;
+
                 await client.LoginAsync(token);
             }
             catch (Exception ex)
@@ -179,9 +182,53 @@ namespace Discord.cs
             }
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private async Task<DiscordMessage?> sendMessage(string text)
         {
+            if (client == null || messageDisplay.channel == null)
+            {
+                Log(new LogMessage(LogSeverity.Error, "Discord.cs", "Client or channel is null"));
+                return null;
+            }
+            DiscordMessage message = await client.SendMessageAsync(messageDisplay.channel.Id, new MessageProperties
+            {
+                Content = text
+            });
+            messageDisplay.paginator.ManuallyAddMessage(message);
+            Invoke(new Action(async () => await messageDisplay.RenderMessages()));
+            return message;
+        }
 
+        private void richTextBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    if (e.Shift)
+                    {
+                        richTextBox1.AppendText("\n");
+                    }
+                    else
+                    {
+                        string text = richTextBox1.Text.Trim();
+                        if (text.Length > 0)
+                        {
+                            Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Sending message: " + text));
+                            Task.Run(async () => await sendMessage(text));
+                            richTextBox1.Clear();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        private void onMessage(DiscordSocketClient sender, MessageEventArgs e)
+        {
+            if (e.Message.Channel.Id == messageDisplay.channel?.Id)
+            {
+                Invoke(new Action(async () => await messageDisplay.RenderMessages()));
+            }
         }
     }
 

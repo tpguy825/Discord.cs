@@ -33,10 +33,11 @@
             splitContainer1 = new SplitContainer();
             pictureBox1 = new PictureBox();
             splitContainer2 = new SplitContainer();
+            label2 = new Label();
             treeView1 = new TreeView();
+            richTextBox1 = new RichTextBox();
             label1 = new Label();
             listView1 = new ListView();
-            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -74,7 +75,6 @@
             pictureBox1.Size = new Size(57, 50);
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
-            pictureBox1.Click += pictureBox1_Click;
             // 
             // splitContainer2
             // 
@@ -89,11 +89,21 @@
             // 
             // splitContainer2.Panel2
             // 
+            splitContainer2.Panel2.Controls.Add(richTextBox1);
             splitContainer2.Panel2.Controls.Add(label1);
             splitContainer2.Panel2.Controls.Add(listView1);
             splitContainer2.Size = new Size(794, 516);
             splitContainer2.SplitterDistance = 200;
             splitContainer2.TabIndex = 3;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(5, 13);
+            label2.Name = "label2";
+            label2.Size = new Size(38, 15);
+            label2.TabIndex = 1;
+            label2.Text = "label2";
             // 
             // treeView1
             // 
@@ -102,6 +112,16 @@
             treeView1.Name = "treeView1";
             treeView1.Size = new Size(199, 476);
             treeView1.TabIndex = 0;
+            // 
+            // richTextBox1
+            // 
+            richTextBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            richTextBox1.Location = new Point(0, 485);
+            richTextBox1.Name = "richTextBox1";
+            richTextBox1.Size = new Size(585, 28);
+            richTextBox1.TabIndex = 3;
+            richTextBox1.Text = "";
+            richTextBox1.KeyDown += richTextBox1_KeyDown;
             // 
             // label1
             // 
@@ -118,19 +138,10 @@
             listView1.ImeMode = ImeMode.NoControl;
             listView1.Location = new Point(0, 40);
             listView1.Name = "listView1";
-            listView1.Size = new Size(590, 476);
+            listView1.Size = new Size(585, 443);
             listView1.TabIndex = 1;
             listView1.UseCompatibleStateImageBehavior = false;
             listView1.View = View.List;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(5, 13);
-            label2.Name = "label2";
-            label2.Size = new Size(38, 15);
-            label2.TabIndex = 1;
-            label2.Text = "label2";
             // 
             // MainScreen
             // 
@@ -154,6 +165,11 @@
             ResumeLayout(false);
         }
 
+        private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         public SplitContainer splitContainer1;
@@ -163,5 +179,6 @@
         public Label label1;
         private SplitContainer splitContainer2;
         private Label label2;
+        private RichTextBox richTextBox1;
     }
 }
