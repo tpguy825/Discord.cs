@@ -35,9 +35,14 @@
             splitContainer2 = new SplitContainer();
             label2 = new Label();
             treeView1 = new TreeView();
+            panel1 = new Panel();
+            button1 = new Button();
+            panel2 = new Panel();
+            label4 = new Label();
+            label3 = new Label();
+            pictureBox2 = new PictureBox();
             richTextBox1 = new RichTextBox();
             label1 = new Label();
-            listView1 = new ListView();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -47,6 +52,9 @@
             splitContainer2.Panel1.SuspendLayout();
             splitContainer2.Panel2.SuspendLayout();
             splitContainer2.SuspendLayout();
+            panel1.SuspendLayout();
+            panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
             // 
             // splitContainer1
@@ -89,9 +97,9 @@
             // 
             // splitContainer2.Panel2
             // 
+            splitContainer2.Panel2.Controls.Add(panel1);
             splitContainer2.Panel2.Controls.Add(richTextBox1);
             splitContainer2.Panel2.Controls.Add(label1);
-            splitContainer2.Panel2.Controls.Add(listView1);
             splitContainer2.Size = new Size(794, 516);
             splitContainer2.SplitterDistance = 200;
             splitContainer2.TabIndex = 3;
@@ -113,10 +121,71 @@
             treeView1.Size = new Size(199, 476);
             treeView1.TabIndex = 0;
             // 
+            // panel1
+            // 
+            panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panel1.AutoScroll = true;
+            panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel1.Controls.Add(button1);
+            panel1.Controls.Add(panel2);
+            panel1.Location = new Point(0, 40);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(585, 439);
+            panel1.TabIndex = 4;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(388, 149);
+            button1.Name = "button1";
+            button1.Size = new Size(75, 23);
+            button1.TabIndex = 1;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            // 
+            // panel2
+            // 
+            panel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panel2.AutoSize = true;
+            panel2.Controls.Add(label4);
+            panel2.Controls.Add(label3);
+            panel2.Controls.Add(pictureBox2);
+            panel2.Location = new Point(0, 0);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(585, 56);
+            panel2.TabIndex = 0;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(60, 29);
+            label4.Name = "label4";
+            label4.Size = new Size(38, 15);
+            label4.TabIndex = 2;
+            label4.Text = "label4";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.Location = new Point(60, 7);
+            label3.Name = "label3";
+            label3.Size = new Size(47, 19);
+            label3.TabIndex = 1;
+            label3.Text = "label3";
+            // 
+            // pictureBox2
+            // 
+            pictureBox2.Location = new Point(3, 3);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(50, 50);
+            pictureBox2.SizeMode = PictureBoxSizeMode.CenterImage;
+            pictureBox2.TabIndex = 0;
+            pictureBox2.TabStop = false;
+            // 
             // richTextBox1
             // 
             richTextBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            richTextBox1.Location = new Point(0, 485);
+            richTextBox1.Location = new Point(0, 484);
             richTextBox1.Name = "richTextBox1";
             richTextBox1.Size = new Size(585, 28);
             richTextBox1.TabIndex = 3;
@@ -131,17 +200,6 @@
             label1.Size = new Size(38, 15);
             label1.TabIndex = 2;
             label1.Text = "label1";
-            // 
-            // listView1
-            // 
-            listView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            listView1.ImeMode = ImeMode.NoControl;
-            listView1.Location = new Point(0, 40);
-            listView1.Name = "listView1";
-            listView1.Size = new Size(585, 443);
-            listView1.TabIndex = 1;
-            listView1.UseCompatibleStateImageBehavior = false;
-            listView1.View = View.List;
             // 
             // MainScreen
             // 
@@ -162,12 +220,12 @@
             splitContainer2.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
             splitContainer2.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ResumeLayout(false);
-        }
-
-        private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -175,10 +233,15 @@
         public SplitContainer splitContainer1;
         public PictureBox pictureBox1;
         private TreeView treeView1;
-        private ListView listView1;
         public Label label1;
         private SplitContainer splitContainer2;
         private Label label2;
         private RichTextBox richTextBox1;
+        public Panel panel1;
+        private Panel panel2;
+        private PictureBox pictureBox2;
+        private Label label3;
+        private Label label4;
+        private Button button1;
     }
 }

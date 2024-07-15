@@ -53,28 +53,28 @@
             }
 
             channelTree.ExpandAll();
-            channelTree.NodeMouseClick += (sender, e) =>
+            channelTree.NodeMouseClick += async (sender, e) =>
             {
                 if (e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
                 {
                     MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
-                    messageDisplay.SetChannel((TextChannel)channel);
+                    await messageDisplay.SetChannel((TextChannel)channel);
                 }
             };
             MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channels rendered"));
         }
 
 
-        public void SetChannel(GuildChannel channel)
+        public async Task SetChannel(GuildChannel channel)
         {
             if (Utils.IsMessageChannel(channel))
             {
                 // It's a message channel, ignore types
                 // c# doesn't support union types :(
-                messageDisplay.SetChannel((TextChannel)channel);
+                await messageDisplay.SetChannel((TextChannel)channel);
             }
 
-            parent.Invoke(new Action(async () => await RenderChannels()));
+            await parent.Invoke(async () => await RenderChannels());
         }
     }
 }

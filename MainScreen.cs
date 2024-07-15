@@ -7,8 +7,8 @@ namespace Discord.cs
         public DiscordSocketClient? client;
         private ServerList? serverList;
         public static readonly DiscordNetLog log = new();
-        private readonly MessageDisplay messageDisplay;
         private readonly ChannelManager channelManager;
+        private readonly MessageDisplay messageDisplay;
 
         public MainScreen()
         {
@@ -27,7 +27,7 @@ namespace Discord.cs
                 MessageBox.Show(ex.Message);
             }
 
-            messageDisplay = new MessageDisplay(listView1, this);
+            messageDisplay = new MessageDisplay(panel1, this);
             channelManager = new ChannelManager(messageDisplay, treeView1, this);
 
         }
@@ -89,6 +89,11 @@ namespace Discord.cs
                 };
 
                 client.OnMessageReceived += onMessage;
+
+                Resize += async (sender, e) =>
+                {
+                    await Invoke(messageDisplay.RenderMessages);
+                };
 
                 await client.LoginAsync(token);
             }
@@ -193,8 +198,7 @@ namespace Discord.cs
             {
                 Content = text
             });
-            messageDisplay.paginator.ManuallyAddMessage(message);
-            Invoke(new Action(async () => await messageDisplay.RenderMessages()));
+            await messageDisplay.ManuallyAddMessage(message);
             return message;
         }
 
