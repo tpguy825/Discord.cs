@@ -1,6 +1,6 @@
 ﻿namespace Discord.cs
 {
-    internal class MessageDisplay(Panel panel, MainScreen parent)
+    internal class MessageDisplay(TableLayoutPanel panel, MainScreen parent)
     {
         public DiscordMessage[] messages = [];
         public DiscordChannel? channel;
@@ -8,23 +8,28 @@
         // Run on render thread!
         public async Task RenderMessages()
         {
-            SortMessages();
+            panel.RowCount = 0;
+            panel.Controls.Clear();
+            panel.RowStyles.Clear();
             if (channel == null) return;
             if (channel.Type == ChannelType.Voice)
             {
+                OnlyText("This is a voice channel...");
                 // TODO
                 return;
             }
+            await Task.Run(FullyRefreshMessages);
+            SortMessages();
             if (messages.Length == 0)
             {
                 OnlyText("This channel is empty...");
                 return;
             }
-            panel.Controls.Clear();
             MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Rendering messages for {channel.Name}"));
 
             Button loadMore = new()
             {
+                Margin = new Padding(3),
                 Text = "Load more",
                 AutoSize = true,
                 Location = new Point(0, 0),
@@ -37,7 +42,9 @@
                 await LoadMore();
             };
 
-            panel.Controls.Add(loadMore);
+            panel.RowCount++;
+            panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 27));
+            panel.Controls.Add(loadMore, 0, 0);
             List<Panel> results = new();
 
             int i = 0, nexty = loadMore.Height;
@@ -55,6 +62,7 @@
                     Location = new Point(0, nexty),
                     Size = new Size(585, 56),
                     TabIndex = 0,
+                    Tag = message
                 };
 
                 PictureBox pfp = new()
@@ -74,7 +82,11 @@
                     Location = new Point(60, 7),
                     Size = new Size(47, 19),
                     TabIndex = 1,
-                    Text = string.Format("{0} - {1}", (message.Author.Member?.Nickname ?? message.Author.User.Username), message.SentAt.ToString("HH:mm")) + (message.Author.User.Type == DiscordUserType.Bot || message.Author.User.Type == DiscordUserType.Webhook ? " (BOT)" : "") + (message.EditedAt != null ? string.Format(" (edited {0})", ((DateTime)message.EditedAt).ToString("HH:mm")) : "")
+                    Text = string.Format("{0} - {1}",
+                        message.Author.Member?.Nickname ?? message.Author.User.Username,
+                        message.SentAt.ToString("dd/MM/yyyy HH:mm:ss"))
+                            + (message.Author.User.Type == DiscordUserType.Bot ? " (BOT)" : "")
+                            + (message.EditedAt != null ? string.Format(" (edited {0})", ((DateTime)message.EditedAt).ToString("dd/MM/yyyy HH:mm:ss")) : "")
                 };
 
                 Label content = new()
@@ -89,7 +101,6 @@
                 containerPanel.Controls.Add(pfp);
                 containerPanel.Controls.Add(username);
                 containerPanel.Controls.Add(content);
-                panel.Controls.Add(containerPanel);
                 results.Add(containerPanel);
 
                 nexty += containerPanel.Height;
@@ -97,16 +108,37 @@
                 i++;
             }
 
+            results.Sort(new PanelComparer());
+
+            i = 1; // load more button is already there
+            foreach (var containerPanel in results)
+            {
+                panel.RowCount++;
+                panel.RowStyles.Add(new RowStyle(SizeType.Absolute, containerPanel.Height));
+                panel.Controls.Add(containerPanel, 0, i);
+            }
+
+            Panel last = results.Last();
             panel.AutoScroll = true;
-            panel.AutoScrollPosition = results.Last().Location;
+            panel.AutoScrollPosition = last.Location;
             MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Messages rendered for {channel.Name}"));
-            panel.ScrollControlIntoView(results.Last());
+            panel.ScrollControlIntoView(last);
         }
 
         public void SortMessages()
         {
+            // i hate this
+            DedupMessages();
             IComparer<DiscordMessage> comparer = new MessageComparer();
-            Array.Sort(messages, comparer);
+            messages = messages.OrderBy(x => x, comparer).ToArray();
+        }
+
+        public void DedupMessages()
+        {
+            messages = messages.GroupBy(x => x.Id).Select(x => x.First()).ToArray();
+
+            // filter out blank non-bot messages
+            messages = messages.Where(x => !string.IsNullOrWhiteSpace(x.Content) && x.Author.User.Type != DiscordUserType.Bot).ToArray();
         }
 
         public async Task ManuallyAddMessage(DiscordMessage message)
@@ -117,7 +149,7 @@
             await parent.Invoke(RenderMessages);
         }
 
-        public async Task LoadMore(uint count = 50)
+        public async Task LoadMore(uint count = 20)
         {
             await LoadMessages(count);
             await parent.Invoke(RenderMessages);
@@ -127,11 +159,11 @@
         {
             this.channel = channel;
             messages = [];
-            messages = await Task.Run(async () => await LoadMessages(50));
+            messages = await Task.Run(async () => await LoadMessages());
             await parent.Invoke(RenderMessages);
         }
 
-        public async Task<DiscordMessage[]> LoadMessages(uint count = 50)
+        public async Task<DiscordMessage[]> LoadMessages(uint count = 20)
         {
             if (channel == null) return [];
             if (channel.Type == ChannelType.Voice)
@@ -152,6 +184,7 @@
                 {
                     messages = msgs.Concat(messages).ToArray();
                 }
+                SortMessages();
             }
             catch (Exception e)
             {
@@ -159,6 +192,16 @@
 
             }
             return messages;
+        }
+
+        public async Task FullyRefreshMessages()
+        {
+            uint length = (uint)messages.Length;
+            if (channel == null) return;
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Fully refreshing messages for {channel.Name}"));
+            messages = [];
+            messages = await LoadMessages(length);
+            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Fully refreshed messages for {channel.Name}"));
         }
 
         public void OnlyText(string text)
@@ -186,7 +229,16 @@
         public int Compare(DiscordMessage? x, DiscordMessage? y)
         {
             if (x == null || y == null) return 0;
-            return x.SentAt.CompareTo(y.SentAt);
+            return y.SentAt.CompareTo(x.SentAt);
+        }
+    }
+
+    public class PanelComparer : IComparer<Panel>
+    {
+        public int Compare(Panel? x, Panel? y)
+        {
+            if (x == null || y == null) return 0;
+            return x.Tag is DiscordMessage xmsg && y.Tag is DiscordMessage ymsg ? new MessageComparer().Compare(xmsg, ymsg) : 0;
         }
     }
 }

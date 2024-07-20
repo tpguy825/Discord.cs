@@ -31,11 +31,12 @@
         private void InitializeComponent()
         {
             splitContainer1 = new SplitContainer();
+            tableLayoutPanel1 = new TableLayoutPanel();
             pictureBox1 = new PictureBox();
             splitContainer2 = new SplitContainer();
             label2 = new Label();
             treeView1 = new TreeView();
-            panel1 = new Panel();
+            panel1 = new TableLayoutPanel();
             button1 = new Button();
             panel2 = new Panel();
             label4 = new Label();
@@ -47,6 +48,7 @@
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
             splitContainer2.Panel1.SuspendLayout();
@@ -59,7 +61,7 @@
             // 
             // splitContainer1
             // 
-            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             splitContainer1.FixedPanel = FixedPanel.Panel1;
             splitContainer1.IsSplitterFixed = true;
             splitContainer1.Location = new Point(0, 0);
@@ -67,18 +69,31 @@
             // 
             // splitContainer1.Panel1
             // 
-            splitContainer1.Panel1.Controls.Add(pictureBox1);
+            splitContainer1.Panel1.Controls.Add(tableLayoutPanel1);
             // 
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(splitContainer2);
             splitContainer1.Size = new Size(857, 516);
-            splitContainer1.SplitterDistance = 60;
+            splitContainer1.SplitterDistance = 72;
             splitContainer1.TabIndex = 0;
+            // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.AutoScroll = true;
+            tableLayoutPanel1.ColumnCount = 1;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(pictureBox1, 0, 0);
+            tableLayoutPanel1.Location = new Point(0, 0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 0;
+            tableLayoutPanel1.Size = new Size(72, 516);
+            tableLayoutPanel1.TabIndex = 2;
+            tableLayoutPanel1.HorizontalScroll.Visible = false;
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(0, 0);
+            pictureBox1.Location = new Point(3, 3);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(57, 50);
             pictureBox1.TabIndex = 1;
@@ -126,16 +141,19 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoScroll = true;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
             panel1.Controls.Add(button1);
             panel1.Controls.Add(panel2);
             panel1.Location = new Point(0, 40);
             panel1.Name = "panel1";
+            panel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 29F));
+            panel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 13F));
             panel1.Size = new Size(585, 439);
             panel1.TabIndex = 4;
             // 
             // button1
             // 
-            button1.Location = new Point(388, 149);
+            button1.Location = new Point(3, 3);
             button1.Name = "button1";
             button1.Size = new Size(75, 23);
             button1.TabIndex = 1;
@@ -149,9 +167,9 @@
             panel2.Controls.Add(label4);
             panel2.Controls.Add(label3);
             panel2.Controls.Add(pictureBox2);
-            panel2.Location = new Point(0, 0);
+            panel2.Location = new Point(3, 32);
             panel2.Name = "panel2";
-            panel2.Size = new Size(585, 56);
+            panel2.Size = new Size(579, 404);
             panel2.TabIndex = 0;
             // 
             // label4
@@ -208,11 +226,13 @@
             ClientSize = new Size(857, 516);
             Controls.Add(splitContainer1);
             Name = "MainScreen";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Discord.cs";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             splitContainer2.Panel1.ResumeLayout(false);
             splitContainer2.Panel1.PerformLayout();
@@ -237,11 +257,12 @@
         private SplitContainer splitContainer2;
         private Label label2;
         private RichTextBox richTextBox1;
-        public Panel panel1;
+        public TableLayoutPanel panel1;
         private Panel panel2;
         private PictureBox pictureBox2;
         private Label label3;
         private Label label4;
         private Button button1;
+        public TableLayoutPanel tableLayoutPanel1;
     }
 }

@@ -9,6 +9,7 @@ namespace Discord.cs
         public static readonly DiscordNetLog log = new();
         private readonly ChannelManager channelManager;
         private readonly MessageDisplay messageDisplay;
+        private readonly string tokenPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".token");
 
         public MainScreen()
         {
@@ -39,13 +40,13 @@ namespace Discord.cs
             try
             {
                 string token = "";
-                if (!File.Exists(".token"))
+                if (!File.Exists(tokenPath))
                 {
                     CodeForm.ShowPopup(this, TokenPopupCallback);
                 }
                 else
                 {
-                    token = File.ReadAllText(".token");
+                    token = File.ReadAllText(tokenPath);
                     if (token.Trim().Length == 0 || token == null) throw new Exception("Failed to read token from token file");
                     Task.Run(() => LoginToDiscordNet(token));
                 }
@@ -62,7 +63,7 @@ namespace Discord.cs
             {
 
                 Task.Run(() => LoginToDiscordNet(token));
-                File.WriteAllText(".token", token);
+                File.WriteAllText(tokenPath, token);
             }
             catch (Exception ex)
             {
@@ -82,10 +83,11 @@ namespace Discord.cs
                     await RefreshServerList();
                 };
 
-                client.OnLoggedOut += (client, eventargs) =>
+                client.OnLoggedOut += async (client, eventargs) =>
                 {
                     Invoke(() => Text = "Discord.cs [Disconnected]");
                     Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Logged out, reason: " + eventargs.Reason));
+                    await client.LoginAsync(token);
                 };
 
                 client.OnMessageReceived += onMessage;
@@ -93,6 +95,7 @@ namespace Discord.cs
                 Resize += async (sender, e) =>
                 {
                     await Invoke(messageDisplay.RenderMessages);
+                    tableLayoutPanel1.Height = splitContainer1.Height;
                 };
 
                 await client.LoginAsync(token);
@@ -132,7 +135,7 @@ namespace Discord.cs
         private void RenderServerList(ServerItem[] images)
         {
             int i = 0;
-            splitContainer1.Panel1.Controls.Clear();
+            tableLayoutPanel1.Controls.Clear();
             foreach (var server in images)
             {
                 var box = new PictureBox()
@@ -140,14 +143,19 @@ namespace Discord.cs
                     Image = server.Image,
                     Name = $"pictureBox-{i}",
                     Size = new Size(50, 50),
-                    Location = new Point(5, i * 55),
+                    Location = new Point(2, 2),
                     Cursor = Cursors.Hand
                 };
                 box.Click += (sender, e) =>
                 {
                     SetActiveServer(server.Guild);
                 };
-                splitContainer1.Panel1.Controls.Add(box);
+
+
+                // add box as a new row to tablePanel
+                tableLayoutPanel1.RowCount++;
+                tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
+                tableLayoutPanel1.Controls.Add(box, 0, i);
                 i++;
             }
         }
@@ -231,7 +239,7 @@ namespace Discord.cs
         {
             if (e.Message.Channel.Id == messageDisplay.channel?.Id)
             {
-                Invoke(new Action(async () => await messageDisplay.RenderMessages()));
+                Invoke(new Action(async () => await messageDisplay.ManuallyAddMessage(e.Message)));
             }
         }
     }

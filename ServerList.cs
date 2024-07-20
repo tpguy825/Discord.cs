@@ -1,6 +1,4 @@
-﻿using Discord.Gateway;
-
-namespace Discord.cs
+﻿namespace Discord.cs
 {
     internal class ServerList(DiscordClient client)
     {

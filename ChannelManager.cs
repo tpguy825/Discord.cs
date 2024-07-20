@@ -4,6 +4,7 @@
     {
         private DiscordGuild? server;
         private IReadOnlyList<GuildChannel>? channels;
+        private bool locked = false;
 
         public void SetServer(DiscordGuild server)
         {
@@ -53,13 +54,24 @@
             }
 
             channelTree.ExpandAll();
+			// for some reason this fires twice?? even with one click
             channelTree.NodeMouseClick += async (sender, e) =>
             {
+
+                if (locked)
+                {
+                    MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection locked"));
+                    return;
+                }
+                locked = true;
+                MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection unlocked, locking..."));
+
                 if (e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
                 {
                     MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
-                    await messageDisplay.SetChannel((TextChannel)channel);
+                    await messageDisplay.SetChannel(channel);
                 }
+                locked = false;
             };
             MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channels rendered"));
         }
@@ -69,10 +81,10 @@
         {
             if (Utils.IsMessageChannel(channel))
             {
-                // It's a message channel, ignore types
-                // c# doesn't support union types :(
-                await messageDisplay.SetChannel((TextChannel)channel);
+                await messageDisplay.SetChannel(channel);
             }
+
+            parent.label1.Text = channel.Name;
 
             await parent.Invoke(async () => await RenderChannels());
         }
