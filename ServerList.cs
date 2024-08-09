@@ -25,11 +25,7 @@
             (bool success, Stream stream) = await Utils.DownloadCDNImageAsync(server.Icon);
 
             Image image = success ? Image.FromStream(stream) : Image.FromFile("Resources/blank_server_icon.png");
-
-            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Rendering server icon for {server.Name}"));
             ServerItem item = new(server, Utils.ResizeImage(image, 50, 50));
-
-            MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Rendered server {server.Name}"));
             return item;
         }
     }

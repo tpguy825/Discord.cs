@@ -66,7 +66,7 @@
                 locked = true;
                 MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection unlocked, locking..."));
 
-                if (e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
+                if (e.Node != null && e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
                 {
                     MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
                     await messageDisplay.SetChannel(channel);
