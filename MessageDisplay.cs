@@ -1,6 +1,6 @@
 ﻿namespace Discord.cs
 {
-	internal class MessageDisplay(TableLayoutPanel panel, MainScreen parent)
+	public class MessageDisplay(TableLayoutPanel panel, MainScreen parent)
 	{
 		public DiscordMessage[] messages = [];
 		public DiscordChannel? channel;

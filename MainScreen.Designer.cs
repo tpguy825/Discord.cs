@@ -255,7 +255,7 @@
         private TreeView treeView1;
         public Label label1;
         private SplitContainer splitContainer2;
-        private Label label2;
+        public Label label2;
         private RichTextBox richTextBox1;
         public TableLayoutPanel panel1;
         private Panel panel2;

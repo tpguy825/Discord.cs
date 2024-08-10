@@ -1,14 +1,24 @@
 ﻿namespace Discord.cs
 {
-    internal class ChannelManager(MessageDisplay messageDisplay, TreeView channelTree, MainScreen parent)
+    public class ChannelManager(MessageDisplay messageDisplay, TreeView channelTree, MainScreen parent)
     {
         private DiscordGuild? server;
         private IReadOnlyList<GuildChannel>? channels;
         private bool locked = false;
 
-        public void SetServer(DiscordGuild server)
+        public void SetServer(DiscordGuild? server)
         {
             this.server = server;
+
+			if (server == null) {
+				// Clear the channel tree and clear the messages
+				// e.g. no longer a member of the server
+
+				channelTree.Nodes.Clear();
+				messageDisplay.ClearMessages();
+				return;
+			}
+
             parent.Invoke(new Action(async () => await RenderChannels()));
         }
 
@@ -23,7 +33,28 @@
             channelTree.Nodes.Clear();
             channelTree.ShowLines = true;
             channelTree.ShowPlusMinus = true;
-            foreach (var channel in channels)
+
+			async void clicked(object? sender, EventArgs e)
+			{
+
+				if (locked)
+				{
+					MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection locked"));
+					return;
+				}
+				locked = true;
+				MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection unlocked, locking..."));
+
+				if (e.Node != null && e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
+				{
+					MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
+					await messageDisplay.SetChannel(channel);
+				}
+				locked = false;
+			}
+
+
+			foreach (var channel in channels)
             {
                 // organise into categories
                 bool isCategory = channel.Type == ChannelType.Category;
@@ -55,24 +86,7 @@
 
             channelTree.ExpandAll();
 			// for some reason this fires twice?? even with one click
-            channelTree.NodeMouseClick += async (sender, e) =>
-            {
-
-                if (locked)
-                {
-                    MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection locked"));
-                    return;
-                }
-                locked = true;
-                MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channel selection unlocked, locking..."));
-
-                if (e.Node != null && e.Node.Tag is GuildChannel channel && Utils.IsMessageChannel(channel))
-                {
-                    MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", $"Selected channel {channel.Name}"));
-                    await messageDisplay.SetChannel(channel);
-                }
-                locked = false;
-            };
+            channelTree.NodeMouseClick += clicked;
             MainScreen.Log(new LogMessage(LogSeverity.Info, "Discord.cs", "Channels rendered"));
         }
 
