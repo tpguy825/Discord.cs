@@ -34,7 +34,7 @@
             channelTree.ShowLines = true;
             channelTree.ShowPlusMinus = true;
 
-			async void clicked(object? sender, EventArgs e)
+			async void clicked(object? sender, TreeNodeMouseClickEventArgs e)
 			{
 
 				if (locked)
