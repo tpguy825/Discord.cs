@@ -48,7 +48,7 @@ namespace Discord.cs
 				{
 					token = File.ReadAllText(tokenPath);
 					if (token.Trim().Length == 0 || token == null) throw new Exception("Failed to read token from token file");
-					Task.Run(() => LoginToDiscordNet(token));
+					Task.Run(() => LoginToDiscordNet(token.Trim()));
 				}
 			}
 			catch (Exception ex)
@@ -57,7 +57,7 @@ namespace Discord.cs
 			}
 		}
 
-		private void TokenPopupCallback(string token)
+		public void TokenPopupCallback(string token)
 		{
 			try
 			{
@@ -69,6 +69,11 @@ namespace Discord.cs
 			{
 				MessageBox.Show(ex.Message);
 			}
+		}
+
+		public static void InvalidateToken()
+		{
+			File.Delete(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".token"));
 		}
 
 		public static ContextMenuStrip CreateContextMenu(ToolStripItemConfig[] items)

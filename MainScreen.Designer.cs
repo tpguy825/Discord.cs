@@ -20,8 +20,6 @@
             base.Dispose(disposing);
         }
         
-        public System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainScreen));
-
         #region Windows Form Designer generated code
 
         /// <summary>

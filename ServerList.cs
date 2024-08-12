@@ -16,6 +16,10 @@
 			catch (Exception ex)
 			{
 				MainScreen.Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
+				if (ex.Message.Contains("401"))
+				{
+					throw;
+				}
 			}
 		}
 
@@ -49,7 +53,8 @@
 					Name = $"pictureBox-{i}",
 					Size = new Size(50, 50),
 					Location = new Point(2, 2),
-					Cursor = Cursors.Hand
+					Cursor = Cursors.Hand,
+					ContextMenuStrip = menu
 				};
 
 
@@ -63,19 +68,28 @@
 
 		private async Task<ServerItem[]> RefetchServerList()
 		{
-			var servers = (await client.GetGuildsAsync()).OrderBy(g => g.Name);
-			var images = new Task<ServerItem>[servers.Count()];
-			int i = 0;
-			foreach (var server in servers)
+			try
 			{
-				if (server == null) continue;
+				var servers = (await client.GetGuildsAsync()).OrderBy(g => g.Name);
 
-				images[i] = Task.Run(() => GetServerItem(server.GetGuild()));
+				var images = new Task<ServerItem>[servers.Count()];
+				int i = 0;
+				foreach (var server in servers)
+				{
+					if (server == null) continue;
 
-				i++;
+					images[i] = Task.Run(() => GetServerItem(server.GetGuild()));
+
+					i++;
+				}
+
+				return await Task.WhenAll(images);
 			}
-
-			return await Task.WhenAll(images);
+			catch (Exception ex)
+			{
+				MainScreen.Log(new LogMessage(LogSeverity.Error, "Discord.cs", ex.Message));
+				throw;
+			}
 		}
 
 		private static async Task<ServerItem> GetServerItem(DiscordGuild server)

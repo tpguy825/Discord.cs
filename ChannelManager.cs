@@ -58,12 +58,17 @@
             {
                 // organise into categories
                 bool isCategory = channel.Type == ChannelType.Category;
+				var menu = MainScreen.CreateContextMenu([
+					new("Open", async (s, e) => await SetChannel(channel)),
+					new("Copy ID", (s, e) => Clipboard.SetText(channel.Id.ToString())),
+				]);
                 TreeNode node = new()
                 {
                     Text = (!isCategory ? "#" : "") + channel.Name,
                     ForeColor = channel.Type == ChannelType.Voice ? Color.Blue : Color.Black,
                     Name = channel.Id.ToString(),
-                    Tag = channel
+                    Tag = channel,
+					ContextMenuStrip = menu
                 };
                 if (isCategory)
                 {
